@@ -12,6 +12,7 @@ on:
 
 env:
   IMAGE_NAME: my-subconverter
+  OKTETO_NAMESPACE: dunmengjun
 
 jobs:
   test:
@@ -22,7 +23,6 @@ jobs:
 
     - name: Run tests
       run: |
-        echo "${{ github.repository }}"
         if [ -f docker-compose.test.yml ]; then
           docker-compose --file docker-compose.test.yml build
           docker-compose --file docker-compose.test.yml run sut
@@ -47,7 +47,7 @@ jobs:
 
     - name: Push image to GitHub Container Registry
       run: |
-        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+        IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME
 
         # Change all uppercase to lowercase
         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -82,7 +82,7 @@ jobs:
     - name: Activate namespace
       uses: okteto/namespace@master
       with:
-        name: ${{ secrets.OKTETO_NAMESPACE }}
+        name: $OKTETO_NAMESPACE
 
     - name: Deploy
       uses: okteto/apply@master
