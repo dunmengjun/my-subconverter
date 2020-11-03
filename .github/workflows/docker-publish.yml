@@ -75,3 +75,23 @@ jobs:
 
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+  deploy:
+    needs: push
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Login  
+      uses: okteto/login@master
+      with:
+        token: ${{ secrets.OKTETO_TOKEN }}
+    
+    - name: Activate namespace
+      uses: okteto/namespace@master
+      with:
+        name: ${{ secrets.OKTETO_NAMESPACE }}
+
+    - name: Deploy
+      uses: okteto/apply@master
+      with:
+        manifest: k8s.yml
