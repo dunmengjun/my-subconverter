@@ -42,7 +42,8 @@ jobs:
       run: | 
         repository="${{github.repository}}"
         arr=(${repository//// })
-        echo "IMAGE_NAME=${arr[1]}" >> $GITHUB_ENV
+        IMAGE_NAME=${arr[1]}
+        echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
         docker build . --file Dockerfile --tag $IMAGE_NAME
 
     - name: Log into GitHub Container Registry
