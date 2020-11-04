@@ -1,6 +1,6 @@
 # my-subconverter
 
-Customized [subconverter](https://github.com/tindy2013/subconverter) is deployed to [okteto](https://cloud.okteto.com/)
+Customized [subconverter](https://github.com/tindy2013/subconverter) deployed to [okteto](https://cloud.okteto.com/)
 
 ## how to build your own subconverter server in okteto?
 1. Create your own account in okteto and ensure can get API Token from okteto
