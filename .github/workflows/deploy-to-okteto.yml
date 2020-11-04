@@ -140,3 +140,7 @@ jobs:
       uses: okteto/apply@master
       with:
         manifest: k8s.yml
+    - name: Clean artifact
+      uses: geekyeggo/delete-artifact@v1
+      with:
+        name: configuration
