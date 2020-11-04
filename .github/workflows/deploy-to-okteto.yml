@@ -46,11 +46,11 @@ jobs:
         echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
         docker build . --file Dockerfile --tag $IMAGE_NAME
 
-    - name: Log into GitHub Container Registry
+    - name: Log To Container Registry
       # TODO: Create a PAT with `read:packages` and `write:packages` scopes and save it as an Actions secret `CR_PAT`
       run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
 
-    - name: Push image to GitHub Container Registry
+    - name: Push image
       run: |
         IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
 
@@ -73,7 +73,7 @@ jobs:
 
         docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
         docker push $IMAGE_ID:$VERSION
-    - name: Gen k8s configuration
+    - name: Generate k8s configuration
       run: |
         cat>k8s.yml<<END_TEXT
         apiVersion: apps/v1
@@ -124,8 +124,6 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v2
-      
     - name: Login
       uses: okteto/login@master
       with:
