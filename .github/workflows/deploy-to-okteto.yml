@@ -17,8 +17,6 @@ on:
     - LICENSE
 env:
   IMAGE_NAME: my-subconverter
-  OKTETO_NAMESPACE: dunmengjun
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -87,7 +85,7 @@ jobs:
     - name: Activate namespace
       uses: okteto/namespace@master
       with:
-        name: $OKTETO_NAMESPACE
+        name: ${{ secrets.OKTETO_NAMESPACE }}
 
     - name: Deploy
       uses: okteto/apply@master
