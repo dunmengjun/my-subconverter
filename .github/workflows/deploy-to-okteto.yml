@@ -1,15 +1,20 @@
-name: Docker
+name: Deploy to okteto
 
 on:
   push:
     branches:
     - main
+    paths-ignore:
+    - README.md
+    - LICENSE
 
     tags:
     - v*
 
   pull_request:
-
+    paths-ignore: 
+    - README.md
+    - LICENSE
 env:
   IMAGE_NAME: my-subconverter
   OKTETO_NAMESPACE: dunmengjun
