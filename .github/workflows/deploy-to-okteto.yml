@@ -42,8 +42,7 @@ jobs:
       run: | 
         repository="${{github.repository}}"
         arr=(${repository//// })
-        export IMAGE_NAME=${arr[1]}
-        echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+        echo "IMAGE_NAME=${arr[1]}" >> $GITHUB_ENV
         docker build . --file Dockerfile --tag $IMAGE_NAME
 
     - name: Log into GitHub Container Registry
@@ -56,7 +55,9 @@ jobs:
 
         # Change all uppercase to lowercase
         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
+        
+        echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
+        
         # Strip git ref prefix from version
         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
@@ -88,7 +89,46 @@ jobs:
       uses: okteto/namespace@master
       with:
         name: ${{ secrets.OKTETO_NAMESPACE }}
-
+    - name: Gen k8s configuration
+      run: |
+        cat>k8s.yml<<END_TEXT
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: $IMAGE_NAME
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: $IMAGE_NAME
+          template:
+            metadata:
+              labels:
+                app: $IMAGE_NAME
+            spec:
+              containers:
+              - image: $IMAGE_ID:latest
+                name: $IMAGE_NAME
+                ports:
+                - containerPort: 25500
+                  protocol: "TCP"
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: $IMAGE_NAME
+          annotations:
+            dev.okteto.com/auto-ingress: "true"
+        spec:
+          type: ClusterIP
+          ports:
+          - name: http
+            port: 8080
+            protocol: TCP
+            targetPort: 25500
+          selector:
+            app: $IMAGE_NAME
+        END_TEXT
     - name: Deploy
       uses: okteto/apply@master
       with:
