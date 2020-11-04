@@ -57,8 +57,6 @@ jobs:
         # Change all uppercase to lowercase
         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
         
-        echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
-        
         # Strip git ref prefix from version
         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
@@ -70,26 +68,11 @@ jobs:
 
         echo IMAGE_ID=$IMAGE_ID
         echo VERSION=$VERSION
+        echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
+        echo "IMAGE_VERSION=$VERSION" >> $GITHUB_ENV
 
         docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
         docker push $IMAGE_ID:$VERSION
-  deploy:
-    needs: push
-    
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-      
-    - name: Login
-      uses: okteto/login@master
-      with:
-        token: ${{ secrets.OKTETO_TOKEN }}
-    
-    - name: Activate namespace
-      uses: okteto/namespace@master
-      with:
-        name: ${{ secrets.OKTETO_NAMESPACE }}
     - name: Gen k8s configuration
       run: |
         cat>k8s.yml<<END_TEXT
@@ -108,7 +91,7 @@ jobs:
                 app: $IMAGE_NAME
             spec:
               containers:
-              - image: $IMAGE_ID:latest
+              - image: $IMAGE_ID:$IMAGE_VERSION
                 name: $IMAGE_NAME
                 ports:
                 - containerPort: 25500
@@ -130,6 +113,31 @@ jobs:
           selector:
             app: $IMAGE_NAME
         END_TEXT
+    - name: Upload k8s configuration
+      uses: actions/upload-artifact@v2
+      with:
+        name: configuration
+        path: k8s.yml
+  deploy:
+    needs: push
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Login
+      uses: okteto/login@master
+      with:
+        token: ${{ secrets.OKTETO_TOKEN }}
+    - name: Activate namespace
+      uses: okteto/namespace@master
+      with:
+        name: ${{ secrets.OKTETO_NAMESPACE }}
+    - name: Download k8s configuration
+      uses: actions/download-artifact@v2
+      with:
+        name: configuration
     - name: Deploy
       uses: okteto/apply@master
       with:
