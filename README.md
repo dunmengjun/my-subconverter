@@ -1,4 +1,4 @@
-# my-subconverter
+# My-subconverter
 
 Customized [subconverter](https://github.com/tindy2013/subconverter) deployed to [okteto](https://cloud.okteto.com/)
 
