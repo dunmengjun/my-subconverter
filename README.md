@@ -2,7 +2,7 @@
 
 Customized [subconverter](https://github.com/tindy2013/subconverter) deployed to [okteto](https://cloud.okteto.com/)
 
-## how to build your own subconverter server in okteto?
+## How to build your own subconverter server in okteto?
 1. Create your own account in okteto and ensure can get API Token from okteto
 2. Fork this repository
 3. Create some sercets in your repository
